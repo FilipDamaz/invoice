@@ -1,21 +1,19 @@
 <?php
-
-declare(strict_types=1);
-
+// app/Domain/Invoice/Services/InvoiceApprovalService.php
 namespace App\Domain\Invoice\Services;
 
 use App\Domain\Invoice\Entities\Invoice;
+use App\Domain\Invoice\Repositories\InvoiceRepositoryInterface; // This should be the interface
 use App\Modules\Approval\Api\ApprovalFacadeInterface;
 use App\Modules\Approval\Api\Dto\ApprovalDto;
 use App\Domain\Enums\StatusEnum;
-use App\Domain\Invoice\Repositories\InvoiceRepository;
 use Ramsey\Uuid\UuidInterface;
 
 class InvoiceApprovalService
 {
     public function __construct(
         private ApprovalFacadeInterface $approvalFacade,
-        private InvoiceRepository $invoiceRepository // Add the repository as a dependency
+        private InvoiceRepositoryInterface $invoiceRepository // Ensure this is the interface
     ) {}
 
     public function approveInvoice(UuidInterface $invoiceId): bool

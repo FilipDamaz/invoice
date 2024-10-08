@@ -191,6 +191,7 @@ return [
         /*
          * Application Service Providers...
          */
+        \App\Infrastructure\Invoice\Providers\RepositoryServiceProvider::class,
         App\Infrastructure\Providers\AppServiceProvider::class,
         App\Infrastructure\Providers\AuthServiceProvider::class,
         // App\Infrastructure\Providers\BroadcastServiceProvider::class,

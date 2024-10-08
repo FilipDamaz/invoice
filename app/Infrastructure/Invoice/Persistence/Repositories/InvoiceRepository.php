@@ -1,9 +1,10 @@
 <?php
 // app/Infrastructure/Persistence/Repositories/InvoiceRepository.php
-namespace App\Infrastructure\Persistence\Repositories;
+namespace App\Infrastructure\Invoice\Persistence\Repositories;
 
 use App\Domain\Invoice\Entities\Invoice;
 use App\Domain\Invoice\Repositories\InvoiceRepositoryInterface;
+use App\Infrastructure\Persistence\Repositories\UuidInterface;
 use Illuminate\Database\Eloquent\Collection;
 
 class InvoiceRepository implements InvoiceRepositoryInterface

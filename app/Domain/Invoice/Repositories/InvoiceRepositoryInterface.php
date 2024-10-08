@@ -1,12 +1,13 @@
 <?php
 // app/Domain/Invoice/Repositories/InvoiceRepositoryInterface.php
+
 namespace App\Domain\Invoice\Repositories;
 
 use App\Domain\Invoice\Entities\Invoice;
-use Illuminate\Database\Eloquent\Collection;
+use Ramsey\Uuid\UuidInterface;
 
 interface InvoiceRepositoryInterface
 {
-    public function save(Invoice $invoice): void;
-    public function findAll(): Collection;
+    public function findById(UuidInterface $id): ?Invoice; // Use the correct type hint
+    // other method declarations...
 }

@@ -22,4 +22,9 @@ class InvoiceRepository implements InvoiceRepositoryInterface
     {
         \DB::table('invoices')->where('id', $invoice->getId())->update(['status' => $invoice->getStatus()]);
     }
+
+    public function findById(UuidInterface $id): ?Invoice
+    {
+        return $this->invoiceModel->find($id);
+    }
 }

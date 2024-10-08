@@ -5,6 +5,7 @@ namespace App\Domain\Invoice\Services;
 use App\Domain\Invoice\Entities\Invoice;
 use App\Domain\Invoice\Repositories\InvoiceRepositoryInterface;
 use App\Application\DTO\InvoiceDTO;
+use App\Domain\Invoice\ValueObjects\Company;
 use Exception;
 
 class InvoiceService
@@ -39,28 +40,48 @@ class InvoiceService
 
     private function generateInvoiceDTO(Invoice $invoice): InvoiceDTO
     {
+
+        $company = new Company(
+            $invoice->company->name,
+            $invoice->company->street,
+            $invoice->company->city,
+            $invoice->company->zip,
+            $invoice->company->phone
+        );
+
+        $billedCompany = new Company(
+            $invoice->billedCompany->name,
+            $invoice->billedCompany->street,
+            $invoice->billedCompany->city,
+            $invoice->billedCompany->zip,
+            $invoice->billedCompany->phone,
+            $invoice->billedCompany->email
+        );
+
+        $products = $invoice->products->map(function ($product) {
+            return new Product(
+                $product->name,
+                $product->pivot->quantity,
+                $product->price,
+                $product->pivot->quantity * $product->price
+            );
+        });
+
+        $total = $this->calculateTotal($products);
         return new InvoiceDTO(
             $invoice->number,
             $invoice->date->format('Y-m-d'),
             $invoice->due_date->format('Y-m-d'),
-            [
-                'name' => $invoice->company->name,
-                'street' => $invoice->company->street,
-                'city' => $invoice->company->city,
-                'zip' => $invoice->company->zip,
-                'phone' => $invoice->company->phone,
-            ],
-            [
-                'name' => $invoice->billedCompany->name,
-                'street' => $invoice->billedCompany->street,
-                'city' => $invoice->billedCompany->city,
-                'zip' => $invoice->billedCompany->zip,
-                'phone' => $invoice->billedCompany->phone,
-                'email' => $invoice->billedCompany->email,
-            ],
-            $this->getProductsArray($invoice->products), // Call the new method to handle products
-            $this->calculateTotal($invoice->products) // Assuming you have a method to calculate total
+            $company,
+            $billedCompany,
+            $products->toArray(),
+            $total
         );
+    }
+
+    private function calculateTotal($products): float
+    {
+        return $products->sum(fn(Product $product) => $product->total);
     }
 
     private function getProductsArray($products): array
@@ -73,33 +94,5 @@ class InvoiceService
                 'total' => $product->pivot->quantity * $product->price,
             ];
         })->toArray(); // Convert the collection to an array
-    }
-    private function calculateTotal($products): float
-    {
-        return $products->sum(function ($product) {
-            return $product->pivot->quantity * $product->price; // Calculate total for each product
-        });
-    }
-
-    public function approveInvoice(string $id): void
-    {
-        $invoice = $this->invoiceRepository->find($id);
-        if (!$invoice) {
-            throw new Exception("Invoice not found");
-        }
-
-        $invoice->approve();
-        $this->invoiceRepository->save($invoice);
-    }
-
-    public function rejectInvoice(string $id): void
-    {
-        $invoice = $this->invoiceRepository->find($id);
-        if (!$invoice) {
-            throw new Exception("Invoice not found");
-        }
-
-        $invoice->reject();
-        $this->invoiceRepository->save($invoice);
     }
 }
